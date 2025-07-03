@@ -24,7 +24,7 @@ Console.WriteLine("KeyPad:\n" +
 Console.WriteLine("\n---------------------------------------------");
 Console.WriteLine("\nTesting");
 Console.WriteLine(PhonePadController.OldPhonePad("222 2 22#")); // "CAB"
-Console.WriteLine(PhonePadController.OldPhonePad("44 33 555 555 666 010 9 666 777 555 3#")); // "HELLO & WORLD"
+Console.WriteLine(PhonePadController.OldPhonePad("44 33 555 * 555 666#")); // "HELO"
 Console.WriteLine(PhonePadController.OldPhonePad("444 777 666 66 0 7777 666 333 8 9 2 777 33#")); // "IRON SOFTWARE"
 
 Console.WriteLine(PhonePadController.OldPhonePad("8 33 7777 8 444 66 4")); // Not return because # is missing
