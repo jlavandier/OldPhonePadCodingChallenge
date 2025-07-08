@@ -3,119 +3,166 @@ using System.Text;
 
 namespace C__Coding_Challenge___Old_Pad_Phone.Services
 {
+    /// <summary>
+    /// Here is an old phone keypad with alphabetical letters, a backspace key, and a send button.
+    /// </summary>
     public class PhonePadController
     {
+        #region Fields
+
         private readonly Dictionary<char, string> _keypad;
         private readonly StringBuilder _result;
         private char _lastKey;
         private int _consecutiveCount;
+        #endregion
+
+        #region Constructor
 
         public PhonePadController()
         {
-            _keypad = new Dictionary<char, string>
-            {
-                {'1', "&'(" },
-                {'2', "ABC"}, 
-                {'3', "DEF"}, 
-                {'4', "GHI"}, 
-                {'5', "JKL"},
-                {'6', "MNO"}, 
-                {'7', "PQRS"}, 
-                {'8', "TUV"}, 
-                {'9', "WXYZ"},
-                {'0', " "}
-            };
+            _keypad = InitializeKeypadMap();
             _result = new StringBuilder();
-            Reset();
+            ResetState();
         }
+
+        #endregion
+
+        /// <summary>
+        /// Processes a full input sequence and returns the composed message.
+        /// </summary
+
+        #region Interface
 
         public static string OldPhonePad(string input)
         {
-            var phonePad = new PhonePadController();
-            return phonePad.ProcessInput(input);
+            var controller = new PhonePadController();
+            return controller.ProcessInput(input);
         }
+
+        /// <summary>
+        /// Processes input characters one by one, simulating keypad behavior.
+        /// </summary>
+        /// 
 
         public string ProcessInput(string input)
         {
-            Reset();
-            bool messageSent = false;
+            ResetState();
+            bool messageConfirmed = false;
 
             foreach (char c in input)
             {
                 if (c == '#')
                 {
-                    messageSent = true;
+                    messageConfirmed = true;
                     break;
                 }
-                ProcessCharacter(c);
+
+                HandleCharacter(c);
             }
 
-            CommitLastKey();
+            CommitCurrentKey();
 
-            return messageSent ? _result.ToString() : "";
+            return messageConfirmed ? _result.ToString() : string.Empty;
         }
 
-        public void ProcessCharacter(char c)
+        /// <summary>
+        /// Returns the current accumulated text (for debugging or live previews).
+        /// </summary>
+        public string GetCurrentText() => _result.ToString();
+
+        #endregion
+
+        #region Processing Key Pad Interactions
+
+        private void HandleCharacter(char input)
         {
-            switch (c)
+            switch(input)
             {
                 case '*':
-                    Backspace();
+                    HandleBackspace(); 
                     break;
+
                 case ' ':
-                    CommitLastKey();
+                    CommitCurrentKey(); 
                     break;
+
                 case '0':
-                    CommitLastKey();
-                    _result.Append(' ');
+                    CommitCurrentKey(); 
+                    _result.Append(' '); 
                     break;
+
                 default:
-                    if (c == _lastKey)
-                    {
-                        _consecutiveCount++;
-                    }
-                    else
-                    {
-                        CommitLastKey();
-                        _lastKey = c;
-                        _consecutiveCount = 1;
-                    }
+                    HandleNumericKey(input);
                     break;
+
+
             }
         }
 
-        private void CommitLastKey()
+        private void HandleNumericKey(char key)
         {
-            if (_consecutiveCount > 0 && _keypad.ContainsKey(_lastKey))
+            if (key == _lastKey)
             {
-                string letters = _keypad[_lastKey];
-                if (!string.IsNullOrEmpty(letters))
-                {
-                    _result.Append(letters[(_consecutiveCount - 1) % letters.Length]);
-                }
+                _consecutiveCount++;
             }
-            _lastKey = '\0';
-            _consecutiveCount = 0;
+            else
+            {
+                CommitCurrentKey();
+                _lastKey = key;
+                _consecutiveCount = 1;
+            }
         }
 
-        private void Backspace()
+        private void HandleBackspace()
         {
-            CommitLastKey();
+            CommitCurrentKey();
             if (_result.Length > 0)
                 _result.Length--;
         }
 
-        private void Reset()
+        private void CommitCurrentKey()
+        {
+            if (_consecutiveCount > 0 && _keypad.TryGetValue(_lastKey, out var letters))
+            {
+                char selectedChar = letters[(_consecutiveCount - 1) % letters.Length];
+                _result.Append(selectedChar);
+            }
+
+            _lastKey = '\0';
+            _consecutiveCount = 0;
+        }
+        #endregion
+
+        #region Key Pad Dictionary
+
+        private void ResetState()
         {
             _result.Clear();
             _lastKey = '\0';
             _consecutiveCount = 0;
         }
 
-        public string GetCurrentText() => _result.ToString();
-        public void Clear() => Reset();
+        private Dictionary<char, string> InitializeKeypadMap()
+        {
+            return new Dictionary<char, string>
+            {
+                { '1', "&'(" },
+                { '2', "ABC" },
+                { '3', "DEF" },
+                { '4', "GHI" },
+                { '5', "JKL" },
+                { '6', "MNO" },
+                { '7', "PQRS" },
+                { '8', "TUV" },
+                { '9', "WXYZ" },
+                { '0', " " }
+            };
+        }
+
+        #endregion
     }
 }
+
 
 
 
